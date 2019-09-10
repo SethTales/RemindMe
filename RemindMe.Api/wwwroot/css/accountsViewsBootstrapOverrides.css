@@ -1,0 +1,29 @@
+#submit-button-wrapper {
+    padding-top: 15%;
+}
+
+.btn {
+    width: 100%;
+}
+
+.form-control
+{
+    background-color: lightgray;
+}
+
+.form-group {
+    padding-top: 2%;
+    padding-bottom: 2%;
+}
+
+.navbar-nav {
+    display: block;
+    text-align: center;
+    float: none;
+    margin:0 auto;
+}
+
+.navbar-nav > li {
+    display: inline-block;
+    float: none;
+}

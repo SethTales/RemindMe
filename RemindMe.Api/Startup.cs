@@ -19,6 +19,7 @@ using Log4Npg.Logging.Extensions;
 using Log4Npg.Logging.Data;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
+using Log4Npg.Models;
 
 namespace RemindMe.Api
 {
@@ -62,7 +63,7 @@ namespace RemindMe.Api
             });
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
-            services.AddNpgLoggerScoped(loggingDbConnectionString);
+            services.AddNpgLoggerScoped(loggingDbConnectionString, LogLevel.All);
 
             services.AddSingleton<AwsCognitoAdapterConfig>(s => cognitoAdapterConfig);
             services.AddScoped<IAmazonCognitoIdentityProvider, AmazonCognitoIdentityProviderClient>();
@@ -87,7 +88,13 @@ namespace RemindMe.Api
             app.UseStaticFiles();
             app.UseCookiePolicy();
 
-            app.UseMvc();
+            app.UseMvc(routes => 
+            {
+                routes
+                    .MapRoute(
+                        name: "default",
+                        template: "{controller=Home}/{action=Index}");
+            });
         }
     }
 }
