@@ -1,0 +1,1 @@
+docker stop test-db-instance && docker rm test-db-instance
