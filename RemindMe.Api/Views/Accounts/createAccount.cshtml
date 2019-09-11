@@ -1,3 +1,4 @@
+@model RemindMe.Models.AwsCognitoUser
 @{
     Layout = "_Layout";
 }
@@ -12,13 +13,13 @@
         @using (Html.BeginForm("CreateAccount", "Accounts", FormMethod.Post, new { @id="auth-form"}))
         {
             <div class="form-group">
-                <input type="email" class="form-control" id="emailInput" name="emailInput" placeholder="Email address">
+                <input type="email" class="form-control" id="emailInput" name="Username" placeholder="Email address">
             </div>
             <div class="form-group">
-                <input type="password" class="form-control" id="passwordInput" name ="passwordInput" placeholder="Password">
+                <input type="password" class="form-control" id="passwordInput" name ="Password" placeholder="Password">
             </div>
             <div class="form-group">
-                <input type="password" class="form-control" id="reEnterPasswordInput" name ="reEnterPasswordInput" placeholder="Re-Enter Password">
+                <input type="password" class="form-control" id="reEnterPasswordInput" name ="ReEnterPassword" placeholder="Re-Enter Password">
             </div>
             <div class ="form-group" id="submit-button-wrapper">
                 <button type="submit" class="btn btn-primary" id="auth-form-button">Create Account</button>

@@ -17,21 +17,21 @@ function ValidateAuthForm(event){
         },
         rules: {
             //properties must match the name of the element and are case sensitive
-            emailInput: {
+            Username: {
                 required: true,
                 email: true
             },
-            passwordInput: {
+            Password: {
                 required: true,
                 PasswordStrengthCheck: true,
                 minlength: 8,
                 maxlength: 24
             },
 
-            reEnterPasswordInput: {
+            ReEnterPassword: {
                 equalTo: "#passwordInput"
             },
-            confirmationCodeInput: {
+            ConfirmationCode: {
                 required: true,
                 minLength: 6,
                 maxLength: 6

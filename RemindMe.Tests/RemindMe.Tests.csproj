@@ -19,6 +19,7 @@
     <ProjectReference Include="..\RemindMe.Models\RemindMe.Models.csproj" />
     <ProjectReference Include="..\Log4Npg\Log4Npg.Logging\Log4Npg.Logging.csproj" />
     <ProjectReference Include="..\RemindMe.Api\RemindMe.Api.csproj" />
+    <ProjectReference Include="..\RemindMe.Data\RemindMe.Data.csproj" />
   </ItemGroup>
 
 </Project>

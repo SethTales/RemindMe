@@ -10,7 +10,7 @@ namespace RemindMe.Models
         public Guid UserGuid {get; set;}
         public string Username {get; set;}
         public DateTime CreatedDate {get; set;}
-        public DateTime MostRecentLogin {get; set;}
+        public DateTime? MostRecentLogin {get; set;}
 
     }
 }

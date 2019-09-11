@@ -4,6 +4,7 @@ using RemindMe.Adapters;
 using NUnit.Framework;
 using NSubstitute;
 using Microsoft.AspNetCore.Mvc;
+using RemindMe.Data;
 
 namespace RemindMe.Tests.UnitTests.Controllers
 {
@@ -12,6 +13,7 @@ namespace RemindMe.Tests.UnitTests.Controllers
     {
         private INpgLogger _logger;
         private IAuthAdapter _authAdapter;
+        private IApplicationRepository _appRepository;
         private AccountsController _accountsController;
 
         [SetUp]
@@ -19,7 +21,8 @@ namespace RemindMe.Tests.UnitTests.Controllers
         {
             _logger = Substitute.For<INpgLogger>();
             _authAdapter = Substitute.For<IAuthAdapter>();
-            _accountsController = new AccountsController(_logger, _authAdapter);
+            _appRepository = Substitute.For<IApplicationRepository>();
+            _accountsController = new AccountsController(_logger, _authAdapter, _appRepository);
         }
 
         [Test]

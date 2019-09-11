@@ -78,6 +78,7 @@ namespace RemindMe.Api
                 .AddEntityFrameworkNpgsql()
                 .AddDbContext<RemindMeDatabaseContext>(options =>
                     options.UseNpgsql(appDbConnectionString));
+            services.AddScoped<IApplicationRepository, ApplicationRepository>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
