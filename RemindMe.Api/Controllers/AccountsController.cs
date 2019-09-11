@@ -20,10 +20,10 @@ namespace RemindMe.Api.Controllers
 
         [HttpGet]
         [Route("create")]
-        public IActionResult CreateAccount(string message = "")
+        public IActionResult GetCreateAccountView(string message = "")
         {
             ViewBag.InfoMessage = message;
-            return View();
+            return View("CreateAccount");
         }
 
         [HttpPost]
@@ -35,21 +35,21 @@ namespace RemindMe.Api.Controllers
 
         [HttpGet]
         [Route("login")]
-        public IActionResult Login(string message = "")
+        public IActionResult GetLoginView(string message = "")
         {
             return new ObjectResult("ROUTE NOT YET IMPLEMENTED");
         }
 
         [HttpGet]
         [Route("user/password")]
-        public IActionResult ResetPassword(string message = "")
+        public IActionResult GetResetPasswordView(string message = "")
         {
             return new ObjectResult("ROUTE NOT YET IMPLEMENTED");
         }
 
         [HttpGet]
         [Route("user/status")]
-        public IActionResult ConfirmAccount(string message = "")
+        public IActionResult GetConfirmAccountView(string message = "")
         {
             return new ObjectResult("ROUTE NOT YET IMPLEMENTED");
         }

@@ -6,6 +6,7 @@
 
   <ItemGroup>
     <PackageReference Include="AWSSDK.CognitoIdentityProvider" Version="3.3.102.57" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.2.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.2.0" />
     <PackageReference Include="NSubstitute" Version="4.2.1" />
     <PackageReference Include="NUnit" Version="3.12.0" />
@@ -16,6 +17,8 @@
   <ItemGroup>
     <ProjectReference Include="..\RemindMe.Adapters\RemindMe.Adapters.csproj" />
     <ProjectReference Include="..\RemindMe.Models\RemindMe.Models.csproj" />
+    <ProjectReference Include="..\Log4Npg\Log4Npg.Logging\Log4Npg.Logging.csproj" />
+    <ProjectReference Include="..\RemindMe.Api\RemindMe.Api.csproj" />
   </ItemGroup>
 
 </Project>

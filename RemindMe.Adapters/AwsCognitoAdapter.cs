@@ -15,10 +15,14 @@ namespace RemindMe.Adapters
         private readonly IAwsCognitoAdapterHelper _cognitoAdapterHelper;
         private readonly string _clientId;
 
-        public AwsCognitoAdapter(IAmazonCognitoIdentityProvider awsCognitoClient, AwsCognitoAdapterConfig cognitoConfig)
+        public AwsCognitoAdapter(
+            IAmazonCognitoIdentityProvider awsCognitoClient,
+            AwsCognitoAdapterConfig cognitoConfig,
+            IAwsCognitoAdapterHelper cognitoAdapterHelper)
         {
             _awsCognitoClient = awsCognitoClient;
             _clientId = cognitoConfig.ClientId;
+            _cognitoAdapterHelper = cognitoAdapterHelper;
         }
 
         public async Task<HttpResponseMessage> RegisterNewUserAsync(RemindMeUser user)
