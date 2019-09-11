@@ -5,6 +5,10 @@ using NUnit.Framework;
 using NSubstitute;
 using Microsoft.AspNetCore.Mvc;
 using RemindMe.Data;
+using System.Threading.Tasks;
+using RemindMe.Models;
+using System.Net.Http;
+using System.Net;
 
 namespace RemindMe.Tests.UnitTests.Controllers
 {
@@ -29,7 +33,24 @@ namespace RemindMe.Tests.UnitTests.Controllers
         public void GetCreateAccountView_ReturnsExpectedView()
         {
             var getCreateAccountViewResult = _accountsController.GetCreateAccountView(string.Empty) as ViewResult;
-            Assert.AreEqual("CreateAccount", getCreateAccountViewResult.ViewName);
+            Assert.AreEqual("createAccount", getCreateAccountViewResult.ViewName);
+        }
+
+        [Test]
+        public async Task SuccessfulPostToCreateAccount_CallsAppRepositoryMethod_AndRedirectsToCorrectAction()
+        {
+            _authAdapter.RegisterNewUserAsync(Arg.Any<AwsCognitoUser>()).Returns(new HttpResponseMessage(HttpStatusCode.Created));
+            var user = new AwsCognitoUser
+            {
+                UserName = "fakeUsername",
+                Password = "fakePassword"
+            };
+
+            var createAccountResponse = await _accountsController.CreateAccount(user) as RedirectToActionResult;
+
+            await _appRepository.Received(1).AddUserAsync(Arg.Any<string>());
+            Assert.AreEqual("GetLoginView", createAccountResponse.ActionName);
+
         }
     }
 }
