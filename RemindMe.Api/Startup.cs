@@ -20,6 +20,7 @@ using Log4Npg.Logging.Data;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
 using Log4Npg.Models;
+using RemindMe.Adapters.Helpers;
 
 namespace RemindMe.Api
 {
@@ -65,7 +66,8 @@ namespace RemindMe.Api
 
             services.AddNpgLoggerScoped(loggingDbConnectionString, LogLevel.All);
 
-            services.AddSingleton<AwsCognitoAdapterConfig>(s => cognitoAdapterConfig);
+            services.AddScoped<AwsCognitoAdapterConfig>(s => cognitoAdapterConfig);
+            services.AddScoped<IAwsCognitoAdapterHelper>();
             services.AddScoped<IAmazonCognitoIdentityProvider, AmazonCognitoIdentityProviderClient>();
             services.AddScoped<IAuthAdapter, AwsCognitoAdapter>();
         }

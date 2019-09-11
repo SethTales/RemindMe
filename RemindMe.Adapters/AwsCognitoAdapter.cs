@@ -5,26 +5,25 @@ using System.Net;
 using Amazon.CognitoIdentityProvider;
 using Amazon.CognitoIdentityProvider.Model;
 using RemindMe.Models;
-using RemindMe.Adapters.Extensions;
+using RemindMe.Adapters.Helpers;
 
 namespace RemindMe.Adapters
 {
     public class AwsCognitoAdapter : IAuthAdapter
     {
         private readonly IAmazonCognitoIdentityProvider _awsCognitoClient;
-        private readonly string _userPoolId;
+        private readonly IAwsCognitoAdapterHelper _cognitoAdapterHelper;
         private readonly string _clientId;
 
         public AwsCognitoAdapter(IAmazonCognitoIdentityProvider awsCognitoClient, AwsCognitoAdapterConfig cognitoConfig)
         {
             _awsCognitoClient = awsCognitoClient;
-            _userPoolId = cognitoConfig.UserPoolId;
             _clientId = cognitoConfig.ClientId;
         }
 
         public async Task<HttpResponseMessage> RegisterNewUserAsync(RemindMeUser user)
         {
-            if (await UserExists(user))
+            if (await _cognitoAdapterHelper.UserExists(user))
             {
                 return new HttpResponseMessage(HttpStatusCode.Conflict);
             }
@@ -38,17 +37,6 @@ namespace RemindMe.Adapters
             var signUpResponse = await _awsCognitoClient.SignUpAsync(signUpRequest);
 
             return new HttpResponseMessage(HttpStatusCode.Created);
-        }
-
-        private async Task<bool> UserExists(RemindMeUser user)
-        {
-            return await _awsCognitoClient.LookupUserByEmailAsync(_userPoolId, user.UserName) != null;
-        }
-
-        private async Task<bool> UserIsConfirmed(RemindMeUser user)
-        {
-            var cognitoUser = await _awsCognitoClient.LookupUserByEmailAsync(_userPoolId, user.UserName);
-            return cognitoUser.UserStatus == UserStatusType.CONFIRMED;
         }
     }
 }

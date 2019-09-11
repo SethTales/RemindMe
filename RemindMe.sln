@@ -17,6 +17,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Log4Npg.Models", "Log4Npg\L
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Log4Npg.Tests", "Log4Npg\Log4Npg.Tests\Log4Npg.Tests.csproj", "{B47C2B69-F903-4B6D-8ECB-ABC3913E330B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RemindMe.Tests", "RemindMe.Tests\RemindMe.Tests.csproj", "{FA274303-D6D8-418D-9112-F7D572E97CEE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -102,6 +104,18 @@ Global
 		{B47C2B69-F903-4B6D-8ECB-ABC3913E330B}.Release|x64.Build.0 = Release|Any CPU
 		{B47C2B69-F903-4B6D-8ECB-ABC3913E330B}.Release|x86.ActiveCfg = Release|Any CPU
 		{B47C2B69-F903-4B6D-8ECB-ABC3913E330B}.Release|x86.Build.0 = Release|Any CPU
+		{FA274303-D6D8-418D-9112-F7D572E97CEE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FA274303-D6D8-418D-9112-F7D572E97CEE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FA274303-D6D8-418D-9112-F7D572E97CEE}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{FA274303-D6D8-418D-9112-F7D572E97CEE}.Debug|x64.Build.0 = Debug|Any CPU
+		{FA274303-D6D8-418D-9112-F7D572E97CEE}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{FA274303-D6D8-418D-9112-F7D572E97CEE}.Debug|x86.Build.0 = Debug|Any CPU
+		{FA274303-D6D8-418D-9112-F7D572E97CEE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FA274303-D6D8-418D-9112-F7D572E97CEE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FA274303-D6D8-418D-9112-F7D572E97CEE}.Release|x64.ActiveCfg = Release|Any CPU
+		{FA274303-D6D8-418D-9112-F7D572E97CEE}.Release|x64.Build.0 = Release|Any CPU
+		{FA274303-D6D8-418D-9112-F7D572E97CEE}.Release|x86.ActiveCfg = Release|Any CPU
+		{FA274303-D6D8-418D-9112-F7D572E97CEE}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{032AE77B-FD16-4411-9D8A-591F42DA1617} = {2C7915CB-B29A-4723-BC4E-83A1545ED169}
