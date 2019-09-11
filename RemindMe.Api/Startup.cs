@@ -21,6 +21,7 @@ using Microsoft.EntityFrameworkCore;
 using Npgsql;
 using Log4Npg.Models;
 using RemindMe.Adapters.Helpers;
+using RemindMe.Data;
 
 namespace RemindMe.Api
 {
@@ -47,6 +48,7 @@ namespace RemindMe.Api
             var deployBucket = Configuration.GetSection("AWS").GetSection("S3")["DeployBucket"];
             var cognitoConfigKey = Configuration.GetSection("AWS").GetSection("S3")["CognitoConfigurationKey"];
             var loggingDbConnectionStringKey = Configuration.GetSection("AWS").GetSection("RDS")["LoggingDbConnectionStringKey"];
+            var appDbConnectionStringKey = Configuration.GetSection("AWS").GetSection("RDS")["AppDbConnectionStringKey"];
 
             services.AddScoped<IAmazonS3, AmazonS3Client>(s => new AmazonS3Client(RegionEndpoint.USWest2));
             services.AddScoped<IStorageAdapter, AwsS3Adapter>();
@@ -55,6 +57,7 @@ namespace RemindMe.Api
 
             var cognitoAdapterConfig = JsonConvert.DeserializeObject<AwsCognitoAdapterConfig>(storageAdapter.GetObjectAsync(deployBucket, cognitoConfigKey).Result);
             var loggingDbConnectionString = storageAdapter.GetObjectAsync(deployBucket, loggingDbConnectionStringKey).Result;
+            var appDbConnectionString = storageAdapter.GetObjectAsync(deployBucket, appDbConnectionStringKey).Result;
 
             services.Configure<CookiePolicyOptions>(options =>
             {
@@ -67,9 +70,14 @@ namespace RemindMe.Api
             services.AddNpgLoggerScoped(loggingDbConnectionString, LogLevel.All);
 
             services.AddScoped<AwsCognitoAdapterConfig>(s => cognitoAdapterConfig);
-            services.AddScoped<IAwsCognitoAdapterHelper>();
+            services.AddScoped<IAwsCognitoAdapterHelper, AwsCognitoAdapterHelper>();
             services.AddScoped<IAmazonCognitoIdentityProvider, AmazonCognitoIdentityProviderClient>();
             services.AddScoped<IAuthAdapter, AwsCognitoAdapter>();
+
+            services
+                .AddEntityFrameworkNpgsql()
+                .AddDbContext<RemindMeDatabaseContext>(options =>
+                    options.UseNpgsql(appDbConnectionString));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

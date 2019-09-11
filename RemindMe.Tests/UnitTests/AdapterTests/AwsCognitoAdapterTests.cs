@@ -35,12 +35,12 @@ namespace RemindMe.Tests.UnitTests.Adapters
         [Test]
         public async Task SuccessfulCreationOfAccount_ReturnsStatusCodeCreated()
         {
-            var user = new RemindMeUser
+            var user = new AwsCognitoUser
             {
                 UserName = "fakeUsername",
                 Password = "fakePassword"
             };
-            _cognitoAdapterHelper.UserExists(Arg.Any<RemindMeUser>()).Returns(false);
+            _cognitoAdapterHelper.UserExists(Arg.Any<AwsCognitoUser>()).Returns(false);
             _awsCognitoClient.SignUpAsync(Arg.Any<SignUpRequest>()).Returns(new SignUpResponse());
 
             var registerUserResponse = await _authAdapter.RegisterNewUserAsync(user);
@@ -51,12 +51,12 @@ namespace RemindMe.Tests.UnitTests.Adapters
         [Test]
         public async Task IfUserExists_RegisterNewUser_ReturnsStatusCodeConflict()
         {
-            var user = new RemindMeUser
+            var user = new AwsCognitoUser
             {
                 UserName = "fakeUsername",
                 Password = "fakePassword"
             };
-            _cognitoAdapterHelper.UserExists(Arg.Any<RemindMeUser>()).Returns(true);
+            _cognitoAdapterHelper.UserExists(Arg.Any<AwsCognitoUser>()).Returns(true);
 
             var registerUserResponse = await _authAdapter.RegisterNewUserAsync(user);
 

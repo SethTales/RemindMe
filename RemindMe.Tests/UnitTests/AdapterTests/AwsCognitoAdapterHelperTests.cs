@@ -32,7 +32,7 @@ namespace RemindMe.Tests.UnitTests.Adapters
         [Test]
         public async Task UserExists_ReturnsTrue_IfUserExists()
         {
-            var user = new RemindMeUser
+            var user = new AwsCognitoUser
             {
                 UserName = "fakeUsername",
                 Password = "fakePassword"
@@ -55,7 +55,7 @@ namespace RemindMe.Tests.UnitTests.Adapters
         [Test]
         public async Task UserExists_ReturnsFalse_IfUserDoesNotExist()
         {
-            var user = new RemindMeUser
+            var user = new AwsCognitoUser
             {
                 UserName = "fakeUsername",
                 Password = "fakePassword"
@@ -72,7 +72,7 @@ namespace RemindMe.Tests.UnitTests.Adapters
         [Test]
         public async Task UserIsConfirmed_ReturnsTrue_IfUserIsInConfirmedState()
         {
-            var user = new RemindMeUser
+            var user = new AwsCognitoUser
             {
                 UserName = "fakeUsername",
                 Password = "fakePassword"
@@ -96,7 +96,7 @@ namespace RemindMe.Tests.UnitTests.Adapters
         [TestCaseSource("UserStatusCases")]
         public async Task UserIsConfirmed_ReturnsFalse_ForAllOtherStates(UserStatusType userStatus)
         {
-            var user = new RemindMeUser
+            var user = new AwsCognitoUser
             {
                 UserName = "fakeUsername",
                 Password = "fakePassword"

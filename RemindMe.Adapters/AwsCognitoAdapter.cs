@@ -25,7 +25,7 @@ namespace RemindMe.Adapters
             _cognitoAdapterHelper = cognitoAdapterHelper;
         }
 
-        public async Task<HttpResponseMessage> RegisterNewUserAsync(RemindMeUser user)
+        public async Task<HttpResponseMessage> RegisterNewUserAsync(AwsCognitoUser user)
         {
             if (await _cognitoAdapterHelper.UserExists(user))
             {

@@ -19,12 +19,12 @@ namespace RemindMe.Adapters.Helpers
             _userPoolId = cognitoAdapterConfig.UserPoolId;
             _awsCognitoClient = awsCognitoClient;
         }
-        public async Task<bool> UserExists(RemindMeUser user)
+        public async Task<bool> UserExists(AwsCognitoUser user)
         {
             return await LookupUserByEmailAsync(_userPoolId, user.UserName) != null;
         }
 
-        public async Task<bool> UserIsConfirmed(RemindMeUser user)
+        public async Task<bool> UserIsConfirmed(AwsCognitoUser user)
         {
             var cognitoUser = await LookupUserByEmailAsync(_userPoolId, user.UserName);
             return cognitoUser.UserStatus == UserStatusType.CONFIRMED;

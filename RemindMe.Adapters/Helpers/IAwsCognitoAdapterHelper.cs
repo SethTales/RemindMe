@@ -6,7 +6,7 @@ namespace RemindMe.Adapters.Helpers
 {
     public interface IAwsCognitoAdapterHelper
     {
-        Task<bool> UserExists(RemindMeUser user);
-        Task<bool> UserIsConfirmed(RemindMeUser user);
+        Task<bool> UserExists(AwsCognitoUser user);
+        Task<bool> UserIsConfirmed(AwsCognitoUser user);
     }
 }

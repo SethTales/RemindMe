@@ -28,7 +28,7 @@ namespace RemindMe.Api.Controllers
 
         [HttpPost]
         [Route("create")]
-        public async Task<IActionResult> CreateAccount(RemindMeUser user, string message = "")
+        public async Task<IActionResult> CreateAccount(AwsCognitoUser user, string message = "")
         {
             return new ObjectResult("ROUTE NOT YET IMPLEMENTED");
         }
