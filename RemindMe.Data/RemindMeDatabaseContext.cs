@@ -12,5 +12,10 @@ namespace RemindMe.Data
 
         public DbSet<RemindMeUser> RemindMeUsers {get; set;}
         public DbSet<Reminder> Reminders {get; set;}
+
+        public void ExecuteDatabaseMigration()
+        {
+            Database.Migrate();
+        }
     }
 }
