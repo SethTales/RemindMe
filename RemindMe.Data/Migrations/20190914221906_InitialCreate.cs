@@ -4,7 +4,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace RemindMe.Data.Migrations
 {
-    public partial class RemindMeAppDb_InitialCreate : Migration
+    public partial class InitialCreate : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -38,7 +38,7 @@ namespace RemindMe.Data.Migrations
                     UserGuid = table.Column<Guid>(nullable: false),
                     Username = table.Column<string>(nullable: true),
                     CreatedDate = table.Column<DateTime>(nullable: false),
-                    MostRecentLogin = table.Column<DateTime>(nullable: false)
+                    MostRecentLogin = table.Column<DateTime>(nullable: true)
                 },
                 constraints: table =>
                 {

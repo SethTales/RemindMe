@@ -26,14 +26,14 @@ namespace RemindMe.Tests.IntegrationTests
             _testServiceProvider = _webAppFactory.GetTestServiceProvider();
             _mockLogger = TestStartup.GetTestLogger();
             _mockCognitoClient = TestStartup.GetMockCognitoClient();
-            _testDbContext = _testServiceProvider.GetRequiredService<TestDatabaseContext>();
-            var testDb = _webAppFactory.GetRemindMeDatabaseContext();
-            testDb.ExecuteDatabaseMigration();
+            var createDbContext = _webAppFactory.GetRemindMeDatabaseContext();
+            createDbContext.ExecuteDatabaseMigration();
         }
 
         [TearDown]
         public void TearDown()
         {
+            _testDbContext = _testServiceProvider.GetRequiredService<TestDatabaseContext>();
             _testDbContext.DeleteTestData(new string[] {"RemindMeUsers"} );
         }
 

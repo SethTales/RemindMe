@@ -51,12 +51,16 @@ namespace RemindMe.Tests.IntegrationTests
             base.ConfigureServices(services);
 
             var deployBucket = Configuration.GetSection("AWS").GetSection("S3")["DeployBucket"];
-            var testDbConnectionStringKey = Configuration.GetSection("AWS").GetSection("RDS")["TestDbConnectionStringKey"];
+            var testDbConnectionStringKey = Configuration.GetSection("AWS").GetSection("RDS")["AppDbConnectionStringKey"];
 
-            var provider = _services.BuildServiceProvider();
+            var provider = services.BuildServiceProvider();
             var storageAdapter = provider.GetRequiredService<IStorageAdapter>();
 
             _connectionString = storageAdapter.GetObjectAsync(deployBucket, testDbConnectionStringKey).Result;
+            services
+                .AddEntityFrameworkNpgsql()
+                .AddDbContext<RemindMeDatabaseContext>(options =>
+                    options.UseNpgsql(_connectionString));
 
             var mockLogger = Substitute.For<INpgLogger>();
             services.AddSingleton(mockLogger);

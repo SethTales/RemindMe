@@ -10,8 +10,8 @@ using RemindMe.Data;
 namespace RemindMe.Data.Migrations
 {
     [DbContext(typeof(RemindMeDatabaseContext))]
-    [Migration("20190911171800_RemindMeAppDbMakeLastLoginDateNullable")]
-    partial class RemindMeAppDbMakeLastLoginDateNullable
+    [Migration("20190914221906_InitialCreate")]
+    partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
