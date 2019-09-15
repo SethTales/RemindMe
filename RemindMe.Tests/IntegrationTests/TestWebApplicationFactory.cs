@@ -6,7 +6,8 @@ using Log4Npg;
 using RemindMe.Api;
 using RemindMe.Adapters;
 using RemindMe.Data;
-using Amazon.CognitoIdentityProvider;
+using RemindMe.Api.Controllers;
+using RemindMe.Adapters.Helpers;
 using NSubstitute;
 using System;
 
@@ -42,7 +43,8 @@ namespace RemindMe.Tests.IntegrationTests
     {
         private static IServiceCollection _services;
         private static INpgLogger _mockLogger;
-        private static IAmazonCognitoIdentityProvider _mockCognitoClient;
+        private static IAuthAdapter _mockAuthAdapter;
+        private static IAwsCognitoAdapterHelper _mockCognitoHelper;
         private static string _connectionString;
         public TestStartup(IHostingEnvironment env) : base(env) {}
 
@@ -59,16 +61,23 @@ namespace RemindMe.Tests.IntegrationTests
             _connectionString = storageAdapter.GetObjectAsync(deployBucket, testDbConnectionStringKey).Result;
             services
                 .AddEntityFrameworkNpgsql()
-                .AddDbContext<RemindMeDatabaseContext>(options =>
+                .AddDbContext<TestDatabaseContext>(options =>
                     options.UseNpgsql(_connectionString));
 
             var mockLogger = Substitute.For<INpgLogger>();
             services.AddSingleton(mockLogger);
             _mockLogger = mockLogger;
 
-            var mockCognitoClient = Substitute.For<IAmazonCognitoIdentityProvider>();
-            services.AddSingleton(mockCognitoClient);
-            _mockCognitoClient = mockCognitoClient;
+            var mockAuthAdapter = Substitute.For<IAuthAdapter>();
+            services.AddSingleton(mockAuthAdapter);
+            _mockAuthAdapter = mockAuthAdapter;
+
+            var mockCognitoHelper = Substitute.For<IAwsCognitoAdapterHelper>();
+            services.AddSingleton(mockCognitoHelper);
+            _mockCognitoHelper = mockCognitoHelper;
+
+            services.AddMvc()
+                .AddApplicationPart(typeof(AccountsController).Assembly);
 
             _services = services;
         }
@@ -83,10 +92,16 @@ namespace RemindMe.Tests.IntegrationTests
             return _mockLogger;
         }
 
-        public static IAmazonCognitoIdentityProvider GetMockCognitoClient()
+        public static IAuthAdapter GetMockAuthAdapter()
         {
-            return _mockCognitoClient;
+            return _mockAuthAdapter;
         }
+
+        public static IAwsCognitoAdapterHelper GetMockAuthHelper()
+        {
+            return _mockCognitoHelper;
+        }
+
 
         public static string GetConnectionString() => _connectionString;
     }
