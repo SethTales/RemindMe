@@ -33,7 +33,7 @@ namespace RemindMe.Tests.UnitTests.Adapters
         }
 
         [Test]
-        public async Task SuccessfulCreationOfAccount_ReturnsStatusCodeCreated()
+        public async Task SuccessfulCreationOfAccount_ReturnsStatusCode_Created()
         {
             var user = new AwsCognitoUser
             {
@@ -49,7 +49,7 @@ namespace RemindMe.Tests.UnitTests.Adapters
         }
 
         [Test]
-        public async Task IfUserExists_RegisterNewUser_ReturnsStatusCodeConflict()
+        public async Task IfUserExists_RegisterNewUser_ReturnsStatusCode_Conflict()
         {
             var user = new AwsCognitoUser
             {
@@ -61,6 +61,54 @@ namespace RemindMe.Tests.UnitTests.Adapters
             var registerUserResponse = await _authAdapter.RegisterNewUserAsync(user);
 
             Assert.AreEqual(registerUserResponse.StatusCode, HttpStatusCode.Conflict);
+        }
+
+        [Test]
+        public async Task SuccessfulConfirmation_OfAccount_ReturnsStatusCode_Ok()
+        {
+            var user = new AwsCognitoUser
+            {
+                UserName = "fakeUsername",
+                ConfirmationCode = "123456"
+            };
+            _cognitoAdapterHelper.UserExists(Arg.Any<AwsCognitoUser>()).Returns(true);
+            _cognitoAdapterHelper.UserIsConfirmed(Arg.Any<AwsCognitoUser>()).Returns(false);
+            _awsCognitoClient.ConfirmSignUpAsync(Arg.Any<ConfirmSignUpRequest>()).Returns(new ConfirmSignUpResponse());
+
+            var confirmUserResponse = await _authAdapter.ConfirmUserAsync(user);
+
+            Assert.AreEqual(confirmUserResponse.StatusCode, HttpStatusCode.OK);
+        }
+
+        [Test]
+        public async Task IsUerDoesNotExist_ConfirmAccount_ReturnsStatusCode_NotFound()
+        {
+            var user = new AwsCognitoUser
+            {
+                UserName = "fakeUsername",
+                ConfirmationCode = "123456"
+            };
+            _cognitoAdapterHelper.UserExists(Arg.Any<AwsCognitoUser>()).Returns(false);
+
+            var confirmUserResponse = await _authAdapter.ConfirmUserAsync(user);
+
+            Assert.AreEqual(confirmUserResponse.StatusCode, HttpStatusCode.NotFound);
+        }
+
+        [Test]
+        public async Task IsUerIsAlreadyConfirmed_ConfirmAccount_ReturnsStatusCode_Conflict()
+        {
+            var user = new AwsCognitoUser
+            {
+                UserName = "fakeUsername",
+                ConfirmationCode = "123456"
+            };
+            _cognitoAdapterHelper.UserExists(Arg.Any<AwsCognitoUser>()).Returns(true);
+            _cognitoAdapterHelper.UserIsConfirmed(Arg.Any<AwsCognitoUser>()).Returns(true);
+
+            var confirmUserResponse = await _authAdapter.ConfirmUserAsync(user);
+
+            Assert.AreEqual(confirmUserResponse.StatusCode, HttpStatusCode.Conflict);
         }
     }
 }

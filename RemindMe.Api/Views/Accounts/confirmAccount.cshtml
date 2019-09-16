@@ -7,4 +7,43 @@
     <script src="~/lib/jquery-validation/dist/jquery.validate.js"></script>
     <script src="~/js/authFormValidator.js"></script>
 }
-PAGE NOT IMPLEMENTED
+<div class="row h-100 w-100">
+    <div class="col-sm-4 my-auto"></div>
+    <div class="col-sm-4 my-auto" id="auth-form-wrapper">
+        @using (Html.BeginForm("ConfirmAccount", "Accounts", FormMethod.Post, new { @id="auth-form"}))
+        {
+            <div class="form-group">
+                <input type="email" class="form-control" id="emailInput" name="Username" placeholder="Email address">
+            </div>
+            <div class="form-group">
+                <input type="password" class="form-control" id="passwordInput" name ="Password" placeholder="Password">
+            </div>
+            <div class="form-group">
+                <input type="text" class="form-control" id="confirmationCodeInput" name ="confirmationCode" placeholder="6-Digit Code">
+            </div>
+            <div class ="form-group" id="submit-button-wrapper">
+                <button type="submit" class="btn btn-primary" id="auth-form-button">Confirm Account</button>
+            </div>
+        }            
+        </form>
+
+        <p>@ViewBag.InfoMessage</p>
+
+        <p class="text-center" id="form-info-text"></p>
+        <nav class="navbar navbar-expand-sm bg-light">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    @Html.ActionLink("Login", "GetLoginView", "Accounts", new { @class="nav-link" })
+                </li>
+                <li class="nav-item">
+                    @Html.ActionLink("Forgot Password", "GetResetPasswordView", "Accounts", new { @class="nav-link" })
+                </li>
+                <li class="nav-item">
+                    @Html.ActionLink("Create Account", "GetCreateAccountView", "Accounts", new { @class="nav-link" })
+                </li>
+            </ul>            
+        </nav>               
+    </div> 
+    <div class="col-sm-4 my-auto"></div>     
+    </div>
+</div>

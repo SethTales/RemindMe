@@ -42,5 +42,27 @@ namespace RemindMe.Adapters
 
             return new HttpResponseMessage(HttpStatusCode.Created);
         }
+
+        public async Task<HttpResponseMessage> ConfirmUserAsync(AwsCognitoUser user)
+        {
+            if (!await _cognitoAdapterHelper.UserExists(user))
+            {
+                return new HttpResponseMessage(HttpStatusCode.NotFound);
+            }
+
+            if (await _cognitoAdapterHelper.UserIsConfirmed(user))
+            {
+                return new HttpResponseMessage(HttpStatusCode.Conflict);
+            }
+
+            var confirmSignupRequest = new ConfirmSignUpRequest
+            {
+                Username = user.UserName,
+                ConfirmationCode = user.ConfirmationCode,
+                ClientId = _clientId
+            };
+            await _awsCognitoClient.ConfirmSignUpAsync(confirmSignupRequest);
+            return new HttpResponseMessage(HttpStatusCode.OK);
+        }
     }
 }

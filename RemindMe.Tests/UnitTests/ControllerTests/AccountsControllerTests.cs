@@ -11,6 +11,7 @@ using System.Net.Http;
 using System.Net;
 using System;
 using NSubstitute.ExceptionExtensions;
+using Amazon.CognitoIdentityProvider.Model;
 
 namespace RemindMe.Tests.UnitTests.Controllers
 {
@@ -31,6 +32,7 @@ namespace RemindMe.Tests.UnitTests.Controllers
             _accountsController = new AccountsController(_logger, _authAdapter, _appRepository);
         }
 
+        //CreateAccount tests
         [Test]
         public void GetCreateAccountView_ReturnsExpectedView()
         {
@@ -82,8 +84,110 @@ namespace RemindMe.Tests.UnitTests.Controllers
 
             var createAccountResponse = await _accountsController.CreateAccount(user) as RedirectToActionResult;
 
+            _logger.Received(1).LogError(Arg.Any<object>());
             await _appRepository.Received(0).AddUserAsync(Arg.Any<string>());
             Assert.AreEqual("GetCreateAccountView", createAccountResponse.ActionName);
+        }
+
+        //ConfirmAccount tests
+        [Test]
+        public void GetConfirmAccountView_ReturnsExpectedView()
+        {
+            var getConfirmAccountViewResult = _accountsController.GetConfirmAccountView(string.Empty) as ViewResult;
+            Assert.AreEqual("confirmAccount", getConfirmAccountViewResult.ViewName);
+        }
+
+        [Test]
+        public async Task SuccessfulPostToConfirmAccount_RedirectsTo_GetLoginView()
+        {
+            _authAdapter.ConfirmUserAsync(Arg.Any<AwsCognitoUser>()).Returns(new HttpResponseMessage(HttpStatusCode.OK));
+            var user = new AwsCognitoUser
+            {
+                UserName = "fakeUsername",
+                ConfirmationCode = "123456"
+            };
+
+            var confirmAccountResponse = await _accountsController.ConfirmAccount(user) as RedirectToActionResult;
+
+            Assert.AreEqual("GetLoginView", confirmAccountResponse.ActionName);
+        }
+
+        [Test]
+        public async Task AttemptToConfirmAccount_ButUserDoesNotExist_RedirectsTo_GetCreateAccountView()
+        {
+            _authAdapter.ConfirmUserAsync(Arg.Any<AwsCognitoUser>()).Returns(new HttpResponseMessage(HttpStatusCode.NotFound));
+            var user = new AwsCognitoUser
+            {
+                UserName = "fakeUsername",
+                ConfirmationCode = "123456"
+            };
+
+            var confirmAccountResponse = await _accountsController.ConfirmAccount(user) as RedirectToActionResult;
+
+            Assert.AreEqual("GetCreateAccountView", confirmAccountResponse.ActionName);
+        }
+
+        [Test]
+        public async Task AttemptToConfirmAccount_ButUserIsAlreadyConfirmed_RedirectsTo_GetLoginView()
+        {
+            _authAdapter.ConfirmUserAsync(Arg.Any<AwsCognitoUser>()).Returns(new HttpResponseMessage(HttpStatusCode.Conflict));
+            var user = new AwsCognitoUser
+            {
+                UserName = "fakeUsername",
+                ConfirmationCode = "123456"
+            };
+
+            var confirmAccountResponse = await _accountsController.ConfirmAccount(user) as RedirectToActionResult;
+
+            Assert.AreEqual("GetLoginView", confirmAccountResponse.ActionName);
+        }
+
+        [Test]
+        public async Task IfCodeMismatchException_IsThrownBy_ConfirmNewUserAsync_ExceptionIsLogged_AndUserRedirectedTo_GetConfirmAccountView()
+        {
+            _authAdapter.ConfirmUserAsync(Arg.Any<AwsCognitoUser>()).Throws(new CodeMismatchException("code mismatch"));
+            var user = new AwsCognitoUser
+            {
+                UserName = "fakeUsername",
+                ConfirmationCode = "123456"
+            };
+
+            var confirmAccountResponse = await _accountsController.ConfirmAccount(user) as RedirectToActionResult;
+
+            _logger.Received(1).LogError(Arg.Any<object>());
+            Assert.AreEqual("GetConfirmAccountView", confirmAccountResponse.ActionName);
+        }
+
+        [Test]
+        public async Task IfException_IsThrownBy_ConfirmNewUserAsync_ExceptionIsLogged_AndUserRedirectedTo_GetConfirmAccountView()
+        {
+            _authAdapter.ConfirmUserAsync(Arg.Any<AwsCognitoUser>()).Throws(new Exception());
+            var user = new AwsCognitoUser
+            {
+                UserName = "fakeUsername",
+                ConfirmationCode = "123456"
+            };
+
+            var confirmAccountResponse = await _accountsController.ConfirmAccount(user) as RedirectToActionResult;
+
+            _logger.Received(1).LogError(Arg.Any<object>());
+            Assert.AreEqual("GetConfirmAccountView", confirmAccountResponse.ActionName);
+        }
+
+        [Test]
+        public async Task IfExpiredCodeException_IsThrownBy_ConfirmNewUserAsync_ExceptionIsLogged_AndUserRedirectedTo_ResendConfirmationCodeView()
+        {
+            _authAdapter.ConfirmUserAsync(Arg.Any<AwsCognitoUser>()).Throws(new ExpiredCodeException("expired code"));
+            var user = new AwsCognitoUser
+            {
+                UserName = "fakeUsername",
+                ConfirmationCode = "123456"
+            };
+
+            var confirmAccountResponse = await _accountsController.ConfirmAccount(user) as RedirectToActionResult;
+
+            _logger.Received(1).LogError(Arg.Any<object>());
+            Assert.AreEqual("GetResendConfirmationCodeView", confirmAccountResponse.ActionName);
         }
     }
 }

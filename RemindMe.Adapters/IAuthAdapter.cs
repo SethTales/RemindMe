@@ -8,5 +8,6 @@ namespace RemindMe.Adapters
     public interface IAuthAdapter
     {
         Task<HttpResponseMessage> RegisterNewUserAsync(AwsCognitoUser user);
+        Task<HttpResponseMessage> ConfirmUserAsync(AwsCognitoUser user);
     }
 }

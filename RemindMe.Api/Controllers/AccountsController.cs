@@ -7,6 +7,7 @@ using RemindMe.Data;
 using System.Net.Http;
 using System;
 using System.Net;
+using Amazon.CognitoIdentityProvider.Model;
 
 namespace RemindMe.Api.Controllers
 {
@@ -65,6 +66,56 @@ namespace RemindMe.Api.Controllers
         }
 
         [HttpGet]
+        [Route("user/status")]
+        public IActionResult GetConfirmAccountView(string message = "")
+        {
+            ViewBag.InfoMessage = message;
+            return View("confirmAccount");
+        }
+
+        [HttpPost]
+        [Route("user/status")]
+        public async Task<IActionResult> ConfirmAccount(AwsCognitoUser cognitoUser, string message = "")
+        {
+            ViewBag.InfoMessage = message;
+
+            HttpResponseMessage confirmSignUpResponse;
+
+            try
+            {
+                confirmSignUpResponse = await _authAdapter.ConfirmUserAsync(cognitoUser);
+            }
+            catch (CodeMismatchException ex)
+            {
+                _logger.LogError(ex);
+                return RedirectToAction("GetConfirmAccountView", "Accounts", new { message = "Invalid verification code provided. Please try again."});
+            }
+            catch (ExpiredCodeException ex)
+            {
+                _logger.LogError(ex);
+                return RedirectToAction("GetResendConfirmationCodeView", "Accounts", new { message = "Verification code expired. Please request a new code."});
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex);
+                return RedirectToAction("GetConfirmAccountView", "Accounts", new { message = "An error has occurred." });
+            }
+            
+            switch (confirmSignUpResponse.StatusCode)
+            {
+                case HttpStatusCode.NotFound:
+                    return RedirectToAction("GetCreateAccountView", "Accounts", new { message = $"The username {cognitoUser.UserName} does not exist. Please create an account." });
+                case HttpStatusCode.Conflict:
+                    return RedirectToAction("GetLoginView", "Accounts", new { message = $"The username {cognitoUser.UserName} is already confirmed. Please login to continue." });
+                case HttpStatusCode.OK:
+                    return RedirectToAction("GetLoginView", "Accounts", new { message = "Click the button above to add payment information. You will be redirected to Stripe." });
+                default:
+                    _logger.LogError(confirmSignUpResponse);
+                    return RedirectToAction("GetCreateAccountView", "Accounts", new { message = "An error has occurred." });
+            }
+        }
+
+        [HttpGet]
         [Route("login")]
         public IActionResult GetLoginView(string message = "")
         {
@@ -81,11 +132,11 @@ namespace RemindMe.Api.Controllers
         }
 
         [HttpGet]
-        [Route("user/status")]
-        public IActionResult GetConfirmAccountView(string message = "")
+        [Route("resend")]
+        public IActionResult GetResendConfirmationCodeView(string message = "")
         {
             ViewBag.InfoMessage = message;
-            return View("confirmAccount");
+            return View("resendConfirmationCode");
         }
     }
 }
