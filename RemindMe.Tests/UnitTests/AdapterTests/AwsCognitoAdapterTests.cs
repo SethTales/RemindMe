@@ -46,7 +46,7 @@ namespace RemindMe.Tests.UnitTests.Adapters
 
             var registerUserResponse = await _authAdapter.RegisterNewUserAsync(user);
 
-            Assert.AreEqual(registerUserResponse.StatusCode, HttpStatusCode.Created);
+            Assert.AreEqual(HttpStatusCode.Created, registerUserResponse.StatusCode);
         }
 
         [Test]
@@ -61,7 +61,7 @@ namespace RemindMe.Tests.UnitTests.Adapters
 
             var registerUserResponse = await _authAdapter.RegisterNewUserAsync(user);
 
-            Assert.AreEqual(registerUserResponse.StatusCode, HttpStatusCode.Conflict);
+            Assert.AreEqual(HttpStatusCode.Conflict, registerUserResponse.StatusCode);
         }
 
         [Test]
@@ -78,7 +78,7 @@ namespace RemindMe.Tests.UnitTests.Adapters
 
             var confirmUserResponse = await _authAdapter.ConfirmUserAsync(user);
 
-            Assert.AreEqual(confirmUserResponse.StatusCode, HttpStatusCode.OK);
+            Assert.AreEqual(HttpStatusCode.OK, confirmUserResponse.StatusCode);
         }
 
         [Test]
@@ -93,7 +93,7 @@ namespace RemindMe.Tests.UnitTests.Adapters
 
             var confirmUserResponse = await _authAdapter.ConfirmUserAsync(user);
 
-            Assert.AreEqual(confirmUserResponse.StatusCode, HttpStatusCode.NotFound);
+            Assert.AreEqual(HttpStatusCode.NotFound, confirmUserResponse.StatusCode);
         }
 
         [Test]
@@ -109,7 +109,7 @@ namespace RemindMe.Tests.UnitTests.Adapters
 
             var confirmUserResponse = await _authAdapter.ConfirmUserAsync(user);
 
-            Assert.AreEqual(confirmUserResponse.StatusCode, HttpStatusCode.Conflict);
+            Assert.AreEqual( HttpStatusCode.Conflict, confirmUserResponse.StatusCode);
         }
 
         [Test]
@@ -144,6 +144,37 @@ namespace RemindMe.Tests.UnitTests.Adapters
             Assert.AreEqual(fakeAccessToken, authenticationResult.AccessToken);
             Assert.AreEqual(fakeIdToken, authenticationResult.IdToken);
             Assert.AreEqual(fakeRefreshToken, authenticationResult.RefreshToken);
+        }
+
+        [Test]
+        public async Task IfUserDoesNotExist_AuthenticateUser_ReturnsStatusCode_NotFound()
+        {
+            var user = new AwsCognitoUser
+            {
+                UserName = "fakeUsername",
+                Password = "fakePassword"
+            };
+            _cognitoAdapterHelper.UserExists(Arg.Any<AwsCognitoUser>()).Returns(false);
+
+            var authResponse = await _authAdapter.AuthenticateUserAsync(user);
+
+            Assert.AreEqual(HttpStatusCode.NotFound, authResponse.StatusCode);
+        }
+
+        [Test]
+        public async Task IfUserIsNotConfirmed_AuthenticateUser_ReturnsStatusCode_BadRequest()
+        {
+            var user = new AwsCognitoUser
+            {
+                UserName = "fakeUsername",
+                Password = "fakePassword"
+            };
+            _cognitoAdapterHelper.UserExists(Arg.Any<AwsCognitoUser>()).Returns(true);
+            _cognitoAdapterHelper.UserIsConfirmed(Arg.Any<AwsCognitoUser>()).Returns(false);
+
+            var authResponse = await _authAdapter.AuthenticateUserAsync(user);
+
+            Assert.AreEqual(HttpStatusCode.BadRequest, authResponse.StatusCode);
         }
 
     }
