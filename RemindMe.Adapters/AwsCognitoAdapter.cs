@@ -6,6 +6,8 @@ using Amazon.CognitoIdentityProvider;
 using Amazon.CognitoIdentityProvider.Model;
 using RemindMe.Models;
 using RemindMe.Adapters.Helpers;
+using System.Collections.Generic;
+using Newtonsoft.Json;
 
 namespace RemindMe.Adapters
 {
@@ -63,6 +65,37 @@ namespace RemindMe.Adapters
             };
             await _awsCognitoClient.ConfirmSignUpAsync(confirmSignupRequest);
             return new HttpResponseMessage(HttpStatusCode.OK);
+        }
+
+        public async Task<HttpResponseMessage> AuthenticateUserAsync(AwsCognitoUser user)
+        {
+            if (!await _cognitoAdapterHelper.UserExists(user))
+            {
+                return new HttpResponseMessage(HttpStatusCode.NotFound);
+            }
+            
+            if (!await _cognitoAdapterHelper.UserIsConfirmed(user))
+            {
+                return new HttpResponseMessage(HttpStatusCode.BadRequest);
+            }
+
+            var authRequest = new InitiateAuthRequest
+            {
+                AuthFlow = AuthFlowType.USER_PASSWORD_AUTH,
+                AuthParameters = new Dictionary<string, string> 
+                {
+                    {"USERNAME", user.UserName},
+                    {"PASSWORD", user.Password}
+                },
+                ClientId = _clientId
+            };
+            var authResponse = await _awsCognitoClient.InitiateAuthAsync(authRequest);
+
+            return new HttpResponseMessage
+            {
+                StatusCode = HttpStatusCode.OK,
+                Content = new StringContent(JsonConvert.SerializeObject(authResponse.AuthenticationResult))
+            };
         }
     }
 }

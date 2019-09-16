@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using RemindMe.Models;
 using System.Collections.Generic;
 using System.Net;
+using Newtonsoft.Json;
 
 namespace RemindMe.Tests.UnitTests.Adapters
 {
@@ -110,5 +111,40 @@ namespace RemindMe.Tests.UnitTests.Adapters
 
             Assert.AreEqual(confirmUserResponse.StatusCode, HttpStatusCode.Conflict);
         }
+
+        [Test]
+        public async Task SuccessfulAuthenticationRequest_ReturnsAuthenticationResult_AndStatusCodeOk()
+        {
+            var fakeAccessToken = "fakeAccessToken";
+            var fakeIdToken = "fakeIdToken";
+            var fakeRefreshToken = "fakeRefreshToken";
+
+            var user = new AwsCognitoUser
+            {
+                UserName = "fakeUsername",
+                Password = "fakePassword"
+            };
+            _cognitoAdapterHelper.UserExists(Arg.Any<AwsCognitoUser>()).Returns(true);
+            _cognitoAdapterHelper.UserIsConfirmed(Arg.Any<AwsCognitoUser>()).Returns(true);
+            _awsCognitoClient.InitiateAuthAsync(Arg.Any<InitiateAuthRequest>()).Returns(new InitiateAuthResponse
+            {
+                AuthenticationResult = new AuthenticationResultType
+                {
+                    AccessToken = fakeAccessToken,
+                    IdToken = fakeIdToken,
+                    RefreshToken = fakeRefreshToken
+                }
+            });
+
+            var authResponse = await _authAdapter.AuthenticateUserAsync(user);
+            var content = await authResponse.Content.ReadAsStringAsync();
+            var authenticationResult = JsonConvert.DeserializeObject<AuthenticationResultType>(content);
+
+            Assert.AreEqual(HttpStatusCode.OK, authResponse.StatusCode);
+            Assert.AreEqual(fakeAccessToken, authenticationResult.AccessToken);
+            Assert.AreEqual(fakeIdToken, authenticationResult.IdToken);
+            Assert.AreEqual(fakeRefreshToken, authenticationResult.RefreshToken);
+        }
+
     }
 }

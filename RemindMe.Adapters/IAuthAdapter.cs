@@ -9,5 +9,6 @@ namespace RemindMe.Adapters
     {
         Task<HttpResponseMessage> RegisterNewUserAsync(AwsCognitoUser user);
         Task<HttpResponseMessage> ConfirmUserAsync(AwsCognitoUser user);
+        Task<HttpResponseMessage> AuthenticateUserAsync(AwsCognitoUser user);
     }
 }
