@@ -8,6 +8,7 @@ using System.Net.Http;
 using System;
 using System.Net;
 using Amazon.CognitoIdentityProvider.Model;
+using Newtonsoft.Json;
 
 namespace RemindMe.Api.Controllers
 {
@@ -116,11 +117,45 @@ namespace RemindMe.Api.Controllers
         }
 
         [HttpGet]
-        [Route("login")]
+        [Route("users/authenticate")]
         public IActionResult GetLoginView(string message = "")
         {
             ViewBag.InfoMessage = message;
             return View("login");
+        }
+
+        [HttpPost]
+        [Route("users/authenticate")]
+        public async Task<IActionResult> Login(AwsCognitoUser cognitoUser, string message = "")
+        {
+            ViewBag.InfoMessage = message;
+            HttpResponseMessage loginResponse;
+            try
+            {
+                loginResponse = await _authAdapter.AuthenticateUserAsync(cognitoUser);
+                var authResult = JsonConvert.DeserializeObject<AuthenticationResultType>(await loginResponse.Content.ReadAsStringAsync());
+                HttpContext.Response.Headers.Add("Authorization", authResult.IdToken);
+                HttpContext.Response.Headers.Add("Refresh", authResult.RefreshToken);
+                HttpContext.Response.Headers.Add("Access", authResult.AccessToken);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex);
+                return RedirectToAction("GetLoginView", "Accounts", new { message = "An error has occurred." });
+            }
+
+            switch (loginResponse.StatusCode)
+            {
+                case HttpStatusCode.OK:
+                    return RedirectToAction("GetRemindersView", "Reminders");
+                case HttpStatusCode.BadRequest:
+                    return RedirectToAction("GetConfirmAccountView", "Accounts", new { message = $"Login failed. User {cognitoUser.UserName} is unconfirmed. Please confirm account to continue." });
+                case HttpStatusCode.NotFound:
+                    return RedirectToAction("GetCreateAccountView", "Accounts", new { message = $"Login failed. User {cognitoUser.UserName} does not exist. Please create an account to continue."});
+                default:
+                    _logger.LogError(loginResponse);
+                    return RedirectToAction("GetLoginView", "Accounts", new { message = "An error has occurred." });
+            }
         }
 
         [HttpGet]

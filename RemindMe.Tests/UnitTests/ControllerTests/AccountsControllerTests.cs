@@ -4,6 +4,7 @@ using RemindMe.Adapters;
 using NUnit.Framework;
 using NSubstitute;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Http;
 using RemindMe.Data;
 using System.Threading.Tasks;
 using RemindMe.Models;
@@ -12,6 +13,10 @@ using System.Net;
 using System;
 using NSubstitute.ExceptionExtensions;
 using Amazon.CognitoIdentityProvider.Model;
+using Newtonsoft.Json;
+using System.Linq;
+using System.Collections.Generic;
+using Microsoft.Extensions.Primitives;
 
 namespace RemindMe.Tests.UnitTests.Controllers
 {
@@ -57,7 +62,7 @@ namespace RemindMe.Tests.UnitTests.Controllers
         }
 
         [Test]
-        public async Task AttempToCreateAccount_ButUserExists_RedirectsToCorrectAction()
+        public async Task AttemptToCreateAccount_ButUserExists_RedirectsToCorrectAction()
         {
             _authAdapter.RegisterNewUserAsync(Arg.Any<AwsCognitoUser>()).Returns(new HttpResponseMessage(HttpStatusCode.Conflict));
             var user = new AwsCognitoUser
@@ -188,6 +193,40 @@ namespace RemindMe.Tests.UnitTests.Controllers
 
             _logger.Received(1).LogError(Arg.Any<object>());
             Assert.AreEqual("GetResendConfirmationCodeView", confirmAccountResponse.ActionName);
+        }
+
+        [Test]
+        public async Task SuccessfulAuthentication_ReturnsCorrectAuthHeaders_AndRedirectsTo_GetRemindersView()
+        {
+            var fakeAccessToken = "fakeAccessToken";
+            var fakeIdToken = "fakeIdToken";
+            var fakeRefreshToken = "fakeRefreshToken";
+
+            var user = new AwsCognitoUser
+            {
+                UserName = "fakeUsername",
+                Password = "fakePassword"
+            };
+
+            var mockAuthResult = new AuthenticationResultType
+            {
+                AccessToken = fakeAccessToken,
+                IdToken = fakeIdToken,
+                RefreshToken = fakeRefreshToken
+            };
+
+            _authAdapter.AuthenticateUserAsync(Arg.Any<AwsCognitoUser>()).Returns(new HttpResponseMessage
+            {
+                StatusCode = HttpStatusCode.OK,
+                Content = new StringContent(JsonConvert.SerializeObject(mockAuthResult))
+            });
+
+            var context = _accountsController.ControllerContext.HttpContext = new DefaultHttpContext();
+            var authResponse = await _accountsController.Login(user) as RedirectToActionResult;
+            Assert.AreEqual("GetRemindersView", authResponse.ActionName);
+            Assert.IsTrue(context.Response.Headers.Contains(new KeyValuePair<string, StringValues>("Authorization", fakeIdToken)));
+            Assert.IsTrue(context.Response.Headers.Contains(new KeyValuePair<string, StringValues>("Refresh", fakeRefreshToken)));
+            Assert.IsTrue(context.Response.Headers.Contains(new KeyValuePair<string, StringValues>("Access", fakeAccessToken)));
         }
     }
 }
