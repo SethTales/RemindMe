@@ -228,5 +228,58 @@ namespace RemindMe.Tests.UnitTests.Controllers
             Assert.IsTrue(context.Response.Headers.Contains(new KeyValuePair<string, StringValues>("Refresh", fakeRefreshToken)));
             Assert.IsTrue(context.Response.Headers.Contains(new KeyValuePair<string, StringValues>("Access", fakeAccessToken)));
         }
+
+        [Test]
+        public async Task AttemptToLogin_ButUserDoesNotExist_RedirectsCreateAccountView()
+        {
+            var user = new AwsCognitoUser
+            {
+                UserName = "fakeUsername",
+                Password = "fakePassword"
+            };
+
+            _authAdapter.AuthenticateUserAsync(Arg.Any<AwsCognitoUser>()).Returns(new HttpResponseMessage
+            {
+                StatusCode = HttpStatusCode.NotFound
+            });
+
+            var authResponse = await _accountsController.Login(user) as RedirectToActionResult;
+            Assert.AreEqual("GetCreateAccountView", authResponse.ActionName);
+        }
+
+        [Test]
+        public async Task AttemptToLogin_ButUserIsNotConfirmed_RedirectsToConfirmAccountView()
+        {
+            var user = new AwsCognitoUser
+            {
+                UserName = "fakeUsername",
+                Password = "fakePassword"
+            };
+
+            _authAdapter.AuthenticateUserAsync(Arg.Any<AwsCognitoUser>()).Returns(new HttpResponseMessage
+            {
+                StatusCode = HttpStatusCode.BadRequest
+            });
+
+            var authResponse = await _accountsController.Login(user) as RedirectToActionResult;
+            Assert.AreEqual("GetConfirmAccountView", authResponse.ActionName);
+        }
+
+        [Test]
+        public async Task IfExpiredCodeException_IsThrownBy_AuthenticateUserAsync_ExceptionIsLogged_AndUserRedirectedTo_GetLoginView()
+        {
+            _authAdapter.AuthenticateUserAsync(Arg.Any<AwsCognitoUser>()).Throws(new Exception());
+            
+            var user = new AwsCognitoUser
+            {
+                UserName = "fakeUsername",
+                Password = "fakePassword"
+            };
+
+            var authResponse = await _accountsController.Login(user) as RedirectToActionResult;
+
+            _logger.Received(1).LogError(Arg.Any<object>());
+            Assert.AreEqual("GetLoginView", authResponse.ActionName);
+        }
     }
 }

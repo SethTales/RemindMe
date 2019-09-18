@@ -133,10 +133,13 @@ namespace RemindMe.Api.Controllers
             try
             {
                 loginResponse = await _authAdapter.AuthenticateUserAsync(cognitoUser);
-                var authResult = JsonConvert.DeserializeObject<AuthenticationResultType>(await loginResponse.Content.ReadAsStringAsync());
-                HttpContext.Response.Headers.Add("Authorization", authResult.IdToken);
-                HttpContext.Response.Headers.Add("Refresh", authResult.RefreshToken);
-                HttpContext.Response.Headers.Add("Access", authResult.AccessToken);
+                if (loginResponse.IsSuccessStatusCode)
+                {
+                    var authResult = JsonConvert.DeserializeObject<AuthenticationResultType>(await loginResponse.Content.ReadAsStringAsync());
+                    HttpContext.Response.Headers.Add("Authorization", authResult.IdToken);
+                    HttpContext.Response.Headers.Add("Refresh", authResult.RefreshToken);
+                    HttpContext.Response.Headers.Add("Access", authResult.AccessToken);
+                }             
             }
             catch (Exception ex)
             {
