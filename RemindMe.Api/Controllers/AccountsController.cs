@@ -59,7 +59,7 @@ namespace RemindMe.Api.Controllers
                     return RedirectToAction("GetCreateAccountView", "Accounts", new {message = $"The email address {cognitoUser.UserName} already has an account associated with it."});
                 case HttpStatusCode.Created:
                     await _appRepository.AddUserAsync(cognitoUser.UserName);
-                    return RedirectToAction("GetLoginView", "Accounts", new {message = $"Account successfully created. Please check your email for a confirmation code."});               
+                    return RedirectToAction("GetConfirmAccountView", "Accounts", new {message = $"Account successfully created. Please check your email for a confirmation code."});               
                 default:
                     _logger.LogError(signUpResponse);
                     return RedirectToAction("GetCreateAccountView", "Accounts", new {message = "An error has occurred."});               
@@ -109,7 +109,7 @@ namespace RemindMe.Api.Controllers
                 case HttpStatusCode.Conflict:
                     return RedirectToAction("GetLoginView", "Accounts", new { message = $"The username {cognitoUser.UserName} is already confirmed. Please login to continue." });
                 case HttpStatusCode.OK:
-                    return RedirectToAction("GetLoginView", "Accounts", new { message = "Click the button above to add payment information. You will be redirected to Stripe." });
+                    return RedirectToAction("GetLoginView", "Accounts", new { message = "Account confirmed. Please login to continue." });
                 default:
                     _logger.LogError(confirmSignUpResponse);
                     return RedirectToAction("GetCreateAccountView", "Accounts", new { message = "An error has occurred." });

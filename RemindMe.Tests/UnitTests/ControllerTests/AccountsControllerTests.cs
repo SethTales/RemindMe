@@ -58,7 +58,7 @@ namespace RemindMe.Tests.UnitTests.Controllers
             var createAccountResponse = await _accountsController.CreateAccount(user) as RedirectToActionResult;
 
             await _appRepository.Received(1).AddUserAsync(Arg.Any<string>());
-            Assert.AreEqual("GetLoginView", createAccountResponse.ActionName);
+            Assert.AreEqual("GetConfirmAccountView", createAccountResponse.ActionName);
         }
 
         [Test]
