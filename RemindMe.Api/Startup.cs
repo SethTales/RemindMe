@@ -22,6 +22,11 @@ using Npgsql;
 using Log4Npg.Models;
 using RemindMe.Adapters.Helpers;
 using RemindMe.Data;
+using System;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using RemindMe.Api.Extensions;
+using System.Net;
 
 namespace RemindMe.Api
 {
@@ -58,14 +63,52 @@ namespace RemindMe.Api
             var cognitoAdapterConfig = JsonConvert.DeserializeObject<AwsCognitoAdapterConfig>(storageAdapter.GetObjectAsync(deployBucket, cognitoConfigKey).Result);
             var loggingDbConnectionString = storageAdapter.GetObjectAsync(deployBucket, loggingDbConnectionStringKey).Result;
             var appDbConnectionString = storageAdapter.GetObjectAsync(deployBucket, appDbConnectionStringKey).Result;
+            var validIssuer = Configuration.GetValidIssuer(cognitoAdapterConfig.UserPoolId);
 
             services.Configure<CookiePolicyOptions>(options =>
             {
                 // This lambda determines whether user consent for non-essential cookies is needed for a given request.
-                options.CheckConsentNeeded = context => true;
+                //options.CheckConsentNeeded = context => true;
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(options => 
+                {
+                    options.Events = new JwtBearerEvents
+                    {
+                        OnMessageReceived = context => {
+                            context.Token = context.Request.Cookies["IdToken"];
+                            return Task.CompletedTask;
+                        }
+                    };
+
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        IssuerSigningKeyResolver = (s, token, identifier, parameters) => 
+                        {
+                            var json = new WebClient().DownloadString($"{validIssuer}/.well-known/jwks.json");
+                            var keys = JsonConvert.DeserializeObject<JsonWebKeySet>(json).Keys;
+                            return (IEnumerable<SecurityKey>)keys;
+                        },
+                        ClockSkew = TimeSpan.FromMinutes(5),
+                        LifetimeValidator = (notBefore, expires, token, parameters) =>
+                        {
+                            if (expires != null)
+                            {
+                                //return false;
+                                if (DateTime.UtcNow < expires) return true;
+                            }
+                            return false;
+                        },
+                        ValidateIssuer = true,
+                        ValidateAudience = false,
+                        ValidateLifetime = true,
+                        ValidateIssuerSigningKey = true,
+                        ValidIssuer = validIssuer
+                    };
+                });
 
             services.AddNpgLoggerScoped(loggingDbConnectionString, LogLevel.All);
 
@@ -98,6 +141,15 @@ namespace RemindMe.Api
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseCookiePolicy();
+            app.UseAuthentication();
+
+            app.UseStatusCodePages(async context => {
+                var response = context.HttpContext.Response;
+                if (response.StatusCode == (int)HttpStatusCode.Unauthorized)
+                {
+                    response.Redirect("/accounts/users/authenticate");
+                }
+            });
 
             app.UseMvc(routes => 
             {

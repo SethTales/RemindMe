@@ -9,9 +9,11 @@ using System;
 using System.Net;
 using Amazon.CognitoIdentityProvider.Model;
 using Newtonsoft.Json;
+using Microsoft.AspNetCore.Authorization;
 
 namespace RemindMe.Api.Controllers
 {
+    [Authorize]
     [Route("[controller]")]
     public class RemindersController : Controller
     {

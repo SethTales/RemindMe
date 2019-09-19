@@ -224,9 +224,6 @@ namespace RemindMe.Tests.UnitTests.Controllers
             var context = _accountsController.ControllerContext.HttpContext = new DefaultHttpContext();
             var authResponse = await _accountsController.Login(user) as RedirectToActionResult;
             Assert.AreEqual("GetRemindersView", authResponse.ActionName);
-            Assert.IsTrue(context.Response.Headers.Contains(new KeyValuePair<string, StringValues>("Authorization", fakeIdToken)));
-            Assert.IsTrue(context.Response.Headers.Contains(new KeyValuePair<string, StringValues>("Refresh", fakeRefreshToken)));
-            Assert.IsTrue(context.Response.Headers.Contains(new KeyValuePair<string, StringValues>("Access", fakeAccessToken)));
         }
 
         [Test]

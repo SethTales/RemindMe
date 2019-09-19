@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Http;
 using Log4Npg;
 using RemindMe.Adapters;
 using System.Threading.Tasks;
@@ -136,9 +137,32 @@ namespace RemindMe.Api.Controllers
                 if (loginResponse.IsSuccessStatusCode)
                 {
                     var authResult = JsonConvert.DeserializeObject<AuthenticationResultType>(await loginResponse.Content.ReadAsStringAsync());
-                    HttpContext.Response.Headers.Add("Authorization", authResult.IdToken);
-                    HttpContext.Response.Headers.Add("Refresh", authResult.RefreshToken);
-                    HttpContext.Response.Headers.Add("Access", authResult.AccessToken);
+                    HttpContext.Response.Cookies.Append(
+                        "IdToken",
+                        authResult.IdToken,
+                        new CookieOptions
+                        {
+                            HttpOnly = true
+                        }
+                    );
+
+                    HttpContext.Response.Cookies.Append(
+                        "RefreshToken",
+                        authResult.RefreshToken,
+                        new CookieOptions
+                        {
+                            HttpOnly = true
+                        }
+                    );
+
+                    HttpContext.Response.Cookies.Append(
+                        "AccessToken",
+                        authResult.AccessToken,
+                        new CookieOptions
+                        {
+                            HttpOnly = true
+                        }
+                    );
                 }             
             }
             catch (Exception ex)
