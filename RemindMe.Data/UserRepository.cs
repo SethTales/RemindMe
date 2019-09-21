@@ -4,10 +4,10 @@ using System;
 
 namespace RemindMe.Data
 {
-    public class ApplicationRepository : IApplicationRepository
+    public class UserRepository : IUserRepository
     {
         private readonly RemindMeDatabaseContext _dbContext;
-        public ApplicationRepository(RemindMeDatabaseContext dbContext)
+        public UserRepository(RemindMeDatabaseContext dbContext)
         {
             _dbContext = dbContext;
         }

@@ -3,6 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp2.2</TargetFramework>
     <AspNetCoreHostingModel>InProcess</AspNetCoreHostingModel>
+    <TargetLatestRuntimePatch>false</TargetLatestRuntimePatch>
   </PropertyGroup>
 
 
@@ -21,6 +22,7 @@
     <ProjectReference Include="..\RemindMe.Adapters\RemindMe.Adapters.csproj" />
     <ProjectReference Include="..\Log4Npg\Log4Npg.Logging\Log4Npg.Logging.csproj" />
     <ProjectReference Include="..\RemindMe.Data\RemindMe.Data.csproj" />
+    <ProjectReference Include="..\RemindMe.Shared\RemindMe.Shared.csproj" />
   </ItemGroup>
 
 </Project>

@@ -25,7 +25,7 @@ namespace RemindMe.Tests.UnitTests.Controllers
     {
         private INpgLogger _logger;
         private IAuthAdapter _authAdapter;
-        private IApplicationRepository _appRepository;
+        private IUserRepository _userRepository;
         private AccountsController _accountsController;
 
         [SetUp]
@@ -33,8 +33,8 @@ namespace RemindMe.Tests.UnitTests.Controllers
         {
             _logger = Substitute.For<INpgLogger>();
             _authAdapter = Substitute.For<IAuthAdapter>();
-            _appRepository = Substitute.For<IApplicationRepository>();
-            _accountsController = new AccountsController(_logger, _authAdapter, _appRepository);
+            _userRepository = Substitute.For<IUserRepository>();
+            _accountsController = new AccountsController(_logger, _authAdapter, _userRepository);
         }
 
         //CreateAccount tests
@@ -57,7 +57,7 @@ namespace RemindMe.Tests.UnitTests.Controllers
 
             var createAccountResponse = await _accountsController.CreateAccount(user) as RedirectToActionResult;
 
-            await _appRepository.Received(1).AddUserAsync(Arg.Any<string>());
+            await _userRepository.Received(1).AddUserAsync(Arg.Any<string>());
             Assert.AreEqual("GetConfirmAccountView", createAccountResponse.ActionName);
         }
 
@@ -73,7 +73,7 @@ namespace RemindMe.Tests.UnitTests.Controllers
 
             var createAccountResponse = await _accountsController.CreateAccount(user) as RedirectToActionResult;
 
-            await _appRepository.Received(0).AddUserAsync(Arg.Any<string>());
+            await _userRepository.Received(0).AddUserAsync(Arg.Any<string>());
             Assert.AreEqual("GetCreateAccountView", createAccountResponse.ActionName);
         }
 
@@ -90,7 +90,7 @@ namespace RemindMe.Tests.UnitTests.Controllers
             var createAccountResponse = await _accountsController.CreateAccount(user) as RedirectToActionResult;
 
             _logger.Received(1).LogError(Arg.Any<object>());
-            await _appRepository.Received(0).AddUserAsync(Arg.Any<string>());
+            await _userRepository.Received(0).AddUserAsync(Arg.Any<string>());
             Assert.AreEqual("GetCreateAccountView", createAccountResponse.ActionName);
         }
 

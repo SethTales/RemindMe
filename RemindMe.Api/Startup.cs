@@ -1,11 +1,9 @@
 using System.IO;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -14,12 +12,6 @@ using RemindMe.Adapters;
 using Amazon.S3;
 using Amazon;
 using Newtonsoft.Json;
-using Log4Npg.Logging;
-using Log4Npg.Logging.Extensions;
-using Log4Npg.Logging.Data;
-using Microsoft.EntityFrameworkCore;
-using Npgsql;
-using Log4Npg.Models;
 using RemindMe.Adapters.Helpers;
 using RemindMe.Data;
 using System;
@@ -27,12 +19,12 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using RemindMe.Api.Extensions;
 using System.Net;
+using RemindMe.Shared;
 
 namespace RemindMe.Api
 {
     public class Startup
     {
-
         public IConfigurationRoot Configuration { get; }
         private readonly string _environment;
         public Startup(IHostingEnvironment hostingEnvironment)
@@ -50,19 +42,15 @@ namespace RemindMe.Api
         // This method gets called by the runtime. Use this method to add services to the container.
         public virtual void ConfigureServices(IServiceCollection services)
         {
+            ConfigurationHelper.ConfigureSharedServices(Configuration, services);
+            
             var deployBucket = Configuration.GetSection("AWS").GetSection("S3")["DeployBucket"];
             var cognitoConfigKey = Configuration.GetSection("AWS").GetSection("S3")["CognitoConfigurationKey"];
-            var loggingDbConnectionStringKey = Configuration.GetSection("AWS").GetSection("RDS")["LoggingDbConnectionStringKey"];
-            var appDbConnectionStringKey = Configuration.GetSection("AWS").GetSection("RDS")["AppDbConnectionStringKey"];
-
-            services.AddScoped<IAmazonS3, AmazonS3Client>(s => new AmazonS3Client(RegionEndpoint.USWest2));
-            services.AddScoped<IStorageAdapter, AwsS3Adapter>();
-            var provider = services.BuildServiceProvider();
-            var storageAdapter = provider.GetRequiredService<IStorageAdapter>();
+            
+            var s3Client = new AmazonS3Client(RegionEndpoint.USWest2);
+            var storageAdapter = new AwsS3Adapter(s3Client);
 
             var cognitoAdapterConfig = JsonConvert.DeserializeObject<AwsCognitoAdapterConfig>(storageAdapter.GetObjectAsync(deployBucket, cognitoConfigKey).Result);
-            var loggingDbConnectionString = storageAdapter.GetObjectAsync(deployBucket, loggingDbConnectionStringKey).Result;
-            var appDbConnectionString = storageAdapter.GetObjectAsync(deployBucket, appDbConnectionStringKey).Result;
             var validIssuer = Configuration.GetValidIssuer(cognitoAdapterConfig.UserPoolId);
 
             services.Configure<CookiePolicyOptions>(options =>
@@ -110,18 +98,12 @@ namespace RemindMe.Api
                     };
                 });
 
-            services.AddNpgLoggerScoped(loggingDbConnectionString, LogLevel.All);
-
             services.AddScoped<AwsCognitoAdapterConfig>(s => cognitoAdapterConfig);
             services.AddScoped<IAwsCognitoAdapterHelper, AwsCognitoAdapterHelper>();
             services.AddScoped<IAmazonCognitoIdentityProvider, AmazonCognitoIdentityProviderClient>();
             services.AddScoped<IAuthAdapter, AwsCognitoAdapter>();
 
-            services
-                .AddEntityFrameworkNpgsql()
-                .AddDbContext<RemindMeDatabaseContext>(options =>
-                    options.UseNpgsql(appDbConnectionString));
-            services.AddScoped<IApplicationRepository, ApplicationRepository>();
+            services.AddScoped<IUserRepository, UserRepository>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

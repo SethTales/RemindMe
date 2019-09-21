@@ -18,13 +18,13 @@ namespace RemindMe.Api.Controllers
     {
         private readonly INpgLogger _logger;
         private readonly IAuthAdapter _authAdapter;
-        private readonly IApplicationRepository _appRepository;
+        private readonly IUserRepository _userRepository;
 
-        public AccountsController(INpgLogger logger, IAuthAdapter authAdapter, IApplicationRepository appRepository)
+        public AccountsController(INpgLogger logger, IAuthAdapter authAdapter, IUserRepository userRepository)
         {
             _logger = logger;
             _authAdapter = authAdapter;
-            _appRepository = appRepository;
+            _userRepository = userRepository;
         }
 
         [HttpGet]
@@ -59,7 +59,7 @@ namespace RemindMe.Api.Controllers
                 case HttpStatusCode.Conflict:
                     return RedirectToAction("GetCreateAccountView", "Accounts", new {message = $"The email address {cognitoUser.UserName} already has an account associated with it."});
                 case HttpStatusCode.Created:
-                    await _appRepository.AddUserAsync(cognitoUser.UserName);
+                    await _userRepository.AddUserAsync(cognitoUser.UserName);
                     return RedirectToAction("GetConfirmAccountView", "Accounts", new {message = $"Account successfully created. Please check your email for a confirmation code."});               
                 default:
                     _logger.LogError(signUpResponse);

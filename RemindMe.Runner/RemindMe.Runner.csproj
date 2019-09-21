@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\Log4Npg\Log4Npg.Logging\Log4Npg.Logging.csproj" />
+    <ProjectReference Include="..\RemindMe.Data\RemindMe.Data.csproj" />
+    <ProjectReference Include="..\RemindMe.Models\RemindMe.Models.csproj" />
+    <ProjectReference Include="..\RemindMe.Shared\RemindMe.Shared.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AWSSDK.SimpleNotificationService" Version="3.3.101.65" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="2.2.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.FileExtensions" Version="2.2.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="2.2.0" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Update="./appsettings.json" CopyToOutputDirectory="Always" />
+  </ItemGroup>
+
+</Project>

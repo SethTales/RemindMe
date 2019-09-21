@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AWSSDK.S3" Version="3.3.104.26" />
+    <PackageReference Include="Microsoft.EntityFrameWorkCore" Version="2.2.6" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="2.2.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="2.2.0" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="2.2.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Log4Npg\Log4Npg.Logging\Log4Npg.Logging.csproj" />
+    <ProjectReference Include="..\RemindMe.Data\RemindMe.Data.csproj" />
+    <ProjectReference Include="..\Log4Npg\Log4Npg.Models\Log4Npg.Models.csproj" />
+    <ProjectReference Include="..\RemindMe.Adapters\RemindMe.Adapters.csproj" />
+  </ItemGroup>
+
+</Project>
