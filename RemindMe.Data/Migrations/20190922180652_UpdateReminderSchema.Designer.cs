@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using RemindMe.Data;
@@ -9,9 +10,10 @@ using RemindMe.Data;
 namespace RemindMe.Data.Migrations
 {
     [DbContext(typeof(RemindMeDatabaseContext))]
-    partial class RemindMeDatabaseContextModelSnapshot : ModelSnapshot
+    [Migration("20190922180652_UpdateReminderSchema")]
+    partial class UpdateReminderSchema
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -27,6 +29,8 @@ namespace RemindMe.Data.Migrations
                     b.Property<DateTime>("CreatedDate");
 
                     b.Property<DateTime?>("MostRecentLogin");
+
+                    b.Property<Guid>("UserGuid");
 
                     b.Property<string>("Username");
 

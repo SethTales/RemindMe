@@ -136,6 +136,7 @@ namespace RemindMe.Api.Controllers
                 loginResponse = await _authAdapter.AuthenticateUserAsync(cognitoUser);
                 if (loginResponse.IsSuccessStatusCode)
                 {
+                    await _userRepository.UpdateMostRecentLoginTimeAsync(cognitoUser.UserName);
                     var authResult = JsonConvert.DeserializeObject<AuthenticationResultType>(await loginResponse.Content.ReadAsStringAsync());
                     HttpContext.Response.Cookies.Append(
                         "IdToken",

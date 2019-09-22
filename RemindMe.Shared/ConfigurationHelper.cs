@@ -30,6 +30,7 @@ namespace RemindMe.Shared
                 .AddEntityFrameworkNpgsql()
                 .AddDbContext<RemindMeDatabaseContext>(options =>
                     options.UseNpgsql(appDbConnectionString));
+            services.AddScoped<IReminderRepository, ReminderRepository>();
         }
     }
 }

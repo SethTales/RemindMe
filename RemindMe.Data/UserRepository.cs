@@ -1,6 +1,7 @@
 using System.Threading.Tasks;
 using RemindMe.Models;
 using System;
+using System.Linq;
 
 namespace RemindMe.Data
 {
@@ -21,6 +22,18 @@ namespace RemindMe.Data
             };
             await _dbContext.RemindMeUsers.AddAsync(remindMeUser);
             await _dbContext.SaveChangesAsync();
+        }
+
+        public async Task UpdateMostRecentLoginTimeAsync(string username)
+        {
+            var user = LookupUserByUsername(username);
+            user.MostRecentLogin = DateTime.UtcNow;
+            await _dbContext.SaveChangesAsync();
+        }
+
+        public RemindMeUser LookupUserByUsername(string username)
+        {
+            return _dbContext.RemindMeUsers.FirstOrDefault(u => u.Username == username);
         }
     }
 }

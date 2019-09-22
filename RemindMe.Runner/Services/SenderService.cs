@@ -21,7 +21,7 @@ namespace RemindMeRunner.App.Services
             var request = new PublishRequest
             {
                 PhoneNumber = reminder.RecipientPhoneNumber,
-                Message = reminder.Description
+                Message = reminder.Message
             };
             _snsClient.PublishAsync(request).Wait();
         }

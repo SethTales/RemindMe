@@ -1,3 +1,4 @@
+@model IEnumerable<RemindMe.Models.Reminder>
 @{
     Layout = "_Layout";
 }
@@ -6,4 +7,29 @@
     <script src="~/lib/jquery-validation/dist/jquery.validate.js"></script>
     <script src="~/js/authFormValidator.js"></script>
 }
-PAGE NOT YET IMPLEMENTED
+<div class="row h-100 w-100">
+    <div class="col-sm-4 my-auto"></div>
+    <div class="col-sm-4 my-auto" id="reminders-wrapper">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Message</th>
+                    <th>Recipient Phone Number</th>
+                    <th>Last Run Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var reminder in Model)
+                {
+                    <tr id=@reminder.ReminderId>
+                        <td>@reminder.Message</td>
+                        <td>@reminder.RecipientPhoneNumber</td>
+                        <td>@reminder.LastRunDate</td> 
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div> 
+    <div class="col-sm-4 my-auto"></div>     
+    </div>
+</div>

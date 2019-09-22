@@ -7,7 +7,6 @@ namespace RemindMe.Models
     {
         [Key]
         public long UserId {get; set;}
-        public Guid UserGuid {get; set;}
         public string Username {get; set;}
         public DateTime CreatedDate {get; set;}
         public DateTime? MostRecentLogin {get; set;}

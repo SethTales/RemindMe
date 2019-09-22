@@ -24,7 +24,6 @@ namespace RemindMeRunner.App
             var services = new ServiceCollection();
             ConfigurationHelper.ConfigureSharedServices(configuration, services);
             services.AddScoped<IAmazonSimpleNotificationService>(s => new AmazonSimpleNotificationServiceClient(RegionEndpoint.USWest2));
-            services.AddScoped<IReminderRepository, ReminderRepository>();
             services.AddScoped<ISenderService, SenderService>();
             var provider = services.BuildServiceProvider();
 
@@ -38,6 +37,7 @@ namespace RemindMeRunner.App
 
                 var reminder = reminderRepository.GetReminderById(reminderId);
                 senderService.SendReminder(reminder);
+                reminderRepository.UpdateReminderLastRunTime(reminderId);
             }
             catch (Exception ex)
             {
