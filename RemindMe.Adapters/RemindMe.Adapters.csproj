@@ -7,7 +7,7 @@
   <ItemGroup>
     <PackageReference Include="AWSSDK.CognitoIdentityProvider" Version="3.3.102.56" />
     <PackageReference Include="AWSSDK.S3" Version="3.3.104.23" />
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
   </ItemGroup>
 
   <ItemGroup>
